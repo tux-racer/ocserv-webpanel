@@ -15,3 +15,5 @@ Requirement
    	like admin:$2y$10$jjKj/0MP5Eb9AJuWK6qbv2134sgacdEoUWhRHc6aNP458a9yzs6Ic
 
 	or on terminal php -r 'echo password_hash("thispasswd", PASSWORD_DEFAULT) . PHP_EOL;'
+
+![Screenshot at 2025-07-01 11-54-34](https://github.com/user-attachments/assets/272cfb28-b63a-4947-8ea1-f4a593c09867)
