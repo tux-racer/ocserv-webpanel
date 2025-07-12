@@ -52,15 +52,44 @@ class OcservController
         $username = preg_replace('/[^a-zA-Z0-9._-]/', '', $username_raw);
 
         switch ($action) {
+            
             case 'add_user':
-                if (!empty($password) && !empty($username)) {
-                    $cmd = "echo -e \"$password\\n$password\" | sudo /usr/bin/ocpasswd -c /etc/ocserv/passwd $username";
-                    $result = $this->model->runCommand($cmd);
-                    $this->model->runCommand("sudo chmod 644 /etc/ocserv/passwd");
-                } else {
-                    $result = ['output' => ['Username dan Password tidak boleh kosong.'], 'status' => 1];
-                }
-                break;
+    if (!empty($password) && !empty($username)) {
+        $safe_username = escapeshellarg($username);
+        $safe_password = escapeshellarg($password);
+
+        // Buat isi script expect
+        $expectScript = <<<EOD
+#!/usr/bin/expect -f
+set timeout 5
+spawn sudo /usr/bin/ocpasswd -c /etc/ocserv/passwd $username
+expect "Enter password:"
+send "$password\r"
+expect "Re-enter password:"
+send "$password\r"
+expect eof
+EOD;
+
+        // Simpan script ke file sementara
+        $tmpFile = "/tmp/add_user_{$username}.exp";
+        file_put_contents($tmpFile, $expectScript);
+        chmod($tmpFile, 0700); // pastikan bisa dieksekusi
+
+        // Jalankan script menggunakan expect
+        $result = $this->model->runCommand("expect $tmpFile");
+
+        // Hapus script setelah dipakai
+        unlink($tmpFile);
+
+        // Set permission file passwd kembali
+        $this->model->runCommand("sudo chmod 644 /etc/ocserv/passwd");
+
+    } else {
+        $result = ['output' => ['Username dan Password tidak boleh kosong.'], 'status' => 1];
+    }
+    break;
+
+            
             case 'delete_user':
                 if (!empty($username)) {
                     $result = $this->model->runCommand("sudo /usr/bin/ocpasswd -d -c /etc/ocserv/passwd $username");
