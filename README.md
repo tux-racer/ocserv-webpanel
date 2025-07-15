@@ -8,7 +8,9 @@ Requirement
 
 	  www-data ALL=(ALL) NOPASSWD: /usr/bin/ocpasswd, /usr/bin/occtl, /bin/chmod
 
-3. 	file admin panel etc/ocserv/paneladmin
+3. 	install expect package on debian apt install expect
+
+4. 	file admin panel etc/ocserv/paneladmin
    
 	on terminal with apache2-utils htpasswd -c /etc/ocserv/paneladmin admin
 
